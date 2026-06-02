@@ -1,0 +1,11 @@
+{
+  "id": "a614de58-0869-47eb-80fc-ecfa51e7c5b8",
+  "name": "untitled",
+  "stage": "development",
+  "activePlugins": [
+    "claude-code"
+  ],
+  "createdAt": "2026-06-02T09:30:11.143Z",
+  "updatedAt": "2026-06-02T09:30:11.143Z",
+  "currentVersion": "v1.0.7"
+}

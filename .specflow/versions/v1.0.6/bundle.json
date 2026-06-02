@@ -1,0 +1,920 @@
+{
+  "version": "v1.0.6",
+  "sourceInputs": [
+    "packages/core"
+  ],
+  "createdAt": "2026-06-02T09:28:16.212Z",
+  "metadata": {
+    "totalFacts": 64,
+    "avgConfidence": 0.85,
+    "openQuestionCount": 7,
+    "modelCalls": [],
+    "durationMs": 73405,
+    "compiledBy": "SpecFlow AI v1.0.0"
+  },
+  "data": {
+    "overview": {
+      "name": "Project Context Builder",
+      "description": "A system that extracts, aggregates, and compiles project context from multiple input types (audio, chat, project, text) using LLM clients for DeepSeek and DashScope. It supports incremental processing, dry-run mode, cost estimation, and generates markdown overviews and semantic diffs.",
+      "stage": "development",
+      "goals": [
+        "Support multiple input types: audio, chat, project, text",
+        "Extract facts from inputs using LLM",
+        "Aggregate extracted facts",
+        "Detect gaps in requirements",
+        "Compile a project context bundle (PCB)",
+        "Generate markdown overview",
+        "Perform semantic diff between versions",
+        "Support incremental processing",
+        "Support dry-run mode",
+        "Track input processing state to avoid reprocessing",
+        "Manage project metadata and bundles with versioning",
+        "Estimate costs for LLM and ASR usage",
+        "Provide a CLI interface"
+      ],
+      "stakeholders": [
+        "Developer",
+        "Project Manager"
+      ]
+    },
+    "productSpec": {
+      "targetUsers": [
+        "Developers",
+        "Project Managers"
+      ],
+      "valueProposition": "Automated extraction and aggregation of project context from diverse inputs, enabling efficient requirement analysis and version comparison.",
+      "features": [
+        {
+          "name": "Input Handling",
+          "priority": "P0",
+          "description": "Detect input type and route to appropriate handler for audio, chat, project, text"
+        },
+        {
+          "name": "Fact Extraction",
+          "priority": "P0",
+          "description": "Extract facts from inputs using LLM"
+        },
+        {
+          "name": "Fact Aggregation",
+          "priority": "P0",
+          "description": "Aggregate extracted facts"
+        },
+        {
+          "name": "Gap Detection",
+          "priority": "P1",
+          "description": "Detect gaps in requirements"
+        },
+        {
+          "name": "PCB Compilation",
+          "priority": "P0",
+          "description": "Compile a project context bundle"
+        },
+        {
+          "name": "Markdown Overview Generation",
+          "priority": "P1",
+          "description": "Generate markdown overview"
+        },
+        {
+          "name": "Semantic Diff",
+          "priority": "P1",
+          "description": "Perform semantic diff between versions"
+        },
+        {
+          "name": "Incremental Processing",
+          "priority": "P1",
+          "description": "Support incremental processing"
+        },
+        {
+          "name": "Dry-Run Mode",
+          "priority": "P2",
+          "description": "Support dry-run mode"
+        },
+        {
+          "name": "Input State Tracking",
+          "priority": "P1",
+          "description": "Track input processing state to avoid reprocessing"
+        },
+        {
+          "name": "Project Metadata Management",
+          "priority": "P1",
+          "description": "Manage project metadata and bundles with versioning"
+        },
+        {
+          "name": "Cost Estimation",
+          "priority": "P2",
+          "description": "Estimate costs for LLM and ASR usage"
+        },
+        {
+          "name": "CLI Interface",
+          "priority": "P0",
+          "description": "Provide a CLI interface"
+        }
+      ],
+      "scope": {
+        "included": [
+          "Multiple input types",
+          "LLM-based extraction",
+          "Aggregation and gap detection",
+          "PCB compilation",
+          "Markdown and diff output",
+          "Incremental and dry-run processing",
+          "Cost estimation",
+          "CLI interface"
+        ],
+        "excluded": [
+          "GUI",
+          "Real-time collaboration"
+        ]
+      }
+    },
+    "userFlows": [
+      {
+        "name": "Main Processing Flow",
+        "steps": [
+          {
+            "actor": "User",
+            "action": "Provide input (audio, chat, project, text) via CLI",
+            "expectedOutcome": "Input is received and type detected"
+          },
+          {
+            "actor": "System",
+            "action": "Detect input type and route to appropriate handler",
+            "expectedOutcome": "Input is parsed into ParsedInput"
+          },
+          {
+            "actor": "System",
+            "action": "Extract facts from input using LLM",
+            "expectedOutcome": "Facts are extracted"
+          },
+          {
+            "actor": "System",
+            "action": "Aggregate extracted facts",
+            "expectedOutcome": "Aggregated facts"
+          },
+          {
+            "actor": "System",
+            "action": "Detect gaps in requirements",
+            "expectedOutcome": "Gaps identified"
+          },
+          {
+            "actor": "System",
+            "action": "Compile project context bundle (PCB)",
+            "expectedOutcome": "PCB generated"
+          },
+          {
+            "actor": "System",
+            "action": "Generate markdown overview",
+            "expectedOutcome": "Markdown overview"
+          },
+          {
+            "actor": "System",
+            "action": "Perform semantic diff if version exists",
+            "expectedOutcome": "Diff output"
+          }
+        ],
+        "edgeCases": [
+          "Invalid input type",
+          "LLM API failure",
+          "Duplicate input"
+        ]
+      }
+    ],
+    "technicalConstraints": [
+      {
+        "category": "API Keys",
+        "description": "API keys for DeepSeek and DashScope must be provided via environment variables or config",
+        "rationale": "Security and configuration management",
+        "alternatives": []
+      },
+      {
+        "category": "Budget",
+        "description": "Monthly budget can be set to limit API costs",
+        "rationale": "Cost control",
+        "alternatives": []
+      }
+    ],
+    "dataModel": {
+      "entities": [
+        {
+          "name": "Fact",
+          "fields": [
+            {
+              "name": "type",
+              "type": "string",
+              "description": "Type of fact",
+              "nullable": false
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "description": "Fact content",
+              "nullable": false
+            },
+            {
+              "name": "confidence",
+              "type": "number",
+              "description": "Confidence score",
+              "nullable": false
+            },
+            {
+              "name": "evidence",
+              "type": "string",
+              "description": "Evidence for the fact",
+              "nullable": false
+            },
+            {
+              "name": "category",
+              "type": "string",
+              "description": "Category of fact",
+              "nullable": false
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "ChatMessage",
+          "fields": [
+            {
+              "name": "role",
+              "type": "string",
+              "description": "Role of message sender",
+              "nullable": false
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "description": "Message content",
+              "nullable": false
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "ChatOptions",
+          "fields": [
+            {
+              "name": "model",
+              "type": "string",
+              "description": "Model name",
+              "nullable": false
+            },
+            {
+              "name": "temperature",
+              "type": "number",
+              "description": "Temperature",
+              "nullable": true
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "ChatResponse",
+          "fields": [
+            {
+              "name": "message",
+              "type": "ChatMessage",
+              "description": "Response message",
+              "nullable": false
+            },
+            {
+              "name": "usage",
+              "type": "TokenUsage",
+              "description": "Token usage",
+              "nullable": true
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "ChatChunk",
+          "fields": [
+            {
+              "name": "delta",
+              "type": "string",
+              "description": "Chunk delta",
+              "nullable": false
+            },
+            {
+              "name": "finishReason",
+              "type": "string",
+              "description": "Finish reason",
+              "nullable": true
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "TokenUsage",
+          "fields": [
+            {
+              "name": "promptTokens",
+              "type": "number",
+              "description": "Prompt tokens",
+              "nullable": false
+            },
+            {
+              "name": "completionTokens",
+              "type": "number",
+              "description": "Completion tokens",
+              "nullable": false
+            },
+            {
+              "name": "totalTokens",
+              "type": "number",
+              "description": "Total tokens",
+              "nullable": false
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "TranscriptionResult",
+          "fields": [
+            {
+              "name": "text",
+              "type": "string",
+              "description": "Transcribed text",
+              "nullable": false
+            },
+            {
+              "name": "segments",
+              "type": "TranscriptionSegment[]",
+              "description": "Segments",
+              "nullable": true
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "TranscriptionSegment",
+          "fields": [
+            {
+              "name": "start",
+              "type": "number",
+              "description": "Start time",
+              "nullable": false
+            },
+            {
+              "name": "end",
+              "type": "number",
+              "description": "End time",
+              "nullable": false
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "description": "Segment text",
+              "nullable": false
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "InputFile",
+          "fields": [
+            {
+              "name": "path",
+              "type": "string",
+              "description": "File path",
+              "nullable": false
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": "Input type",
+              "nullable": false
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "ParsedInput",
+          "fields": [
+            {
+              "name": "type",
+              "type": "string",
+              "description": "Input type",
+              "nullable": false
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "description": "Parsed content",
+              "nullable": false
+            },
+            {
+              "name": "sourceRef",
+              "type": "SourceRef",
+              "description": "Source reference",
+              "nullable": true
+            }
+          ],
+          "relationships": []
+        },
+        {
+          "name": "SourceRef",
+          "fields": [
+            {
+              "name": "file",
+              "type": "string",
+              "description": "Source file",
+              "nullable": false
+            },
+            {
+              "name": "line",
+              "type": "number",
+              "description": "Line number",
+              "nullable": true
+            }
+          ],
+          "relationships": []
+        }
+      ]
+    },
+    "tasks": [
+      {
+        "id": "t-1",
+        "title": "Implement input handling for all types",
+        "description": "Implement detection and routing for audio, chat, project, text inputs",
+        "priority": "P0",
+        "estimatedHours": 8,
+        "dependencies": [],
+        "acceptanceCriteria": [
+          "Input type is correctly detected",
+          "Appropriate handler is invoked"
+        ]
+      },
+      {
+        "id": "t-2",
+        "title": "Implement fact extraction using LLM",
+        "description": "Implement extraction of facts from parsed input using DeepSeek and DashScope clients",
+        "priority": "P0",
+        "estimatedHours": 12,
+        "dependencies": [
+          "t-1"
+        ],
+        "acceptanceCriteria": [
+          "Facts are extracted with type, content, confidence, evidence, category"
+        ]
+      },
+      {
+        "id": "t-3",
+        "title": "Implement fact aggregation",
+        "description": "Implement aggregation of extracted facts",
+        "priority": "P0",
+        "estimatedHours": 6,
+        "dependencies": [
+          "t-2"
+        ],
+        "acceptanceCriteria": [
+          "Aggregated facts are produced"
+        ]
+      },
+      {
+        "id": "t-4",
+        "title": "Implement gap detection",
+        "description": "Implement detection of gaps in requirements",
+        "priority": "P1",
+        "estimatedHours": 6,
+        "dependencies": [
+          "t-3"
+        ],
+        "acceptanceCriteria": [
+          "Gaps are identified"
+        ]
+      },
+      {
+        "id": "t-5",
+        "title": "Implement PCB compilation",
+        "description": "Implement compilation of project context bundle",
+        "priority": "P0",
+        "estimatedHours": 8,
+        "dependencies": [
+          "t-3"
+        ],
+        "acceptanceCriteria": [
+          "PCB is generated"
+        ]
+      },
+      {
+        "id": "t-6",
+        "title": "Implement markdown overview generation",
+        "description": "Implement generation of markdown overview from PCB",
+        "priority": "P1",
+        "estimatedHours": 4,
+        "dependencies": [
+          "t-5"
+        ],
+        "acceptanceCriteria": [
+          "Markdown overview is generated"
+        ]
+      },
+      {
+        "id": "t-7",
+        "title": "Implement semantic diff",
+        "description": "Implement semantic diff between versions",
+        "priority": "P1",
+        "estimatedHours": 6,
+        "dependencies": [
+          "t-5"
+        ],
+        "acceptanceCriteria": [
+          "Diff output is produced"
+        ]
+      },
+      {
+        "id": "t-8",
+        "title": "Implement incremental processing",
+        "description": "Implement incremental processing to avoid reprocessing unchanged inputs",
+        "priority": "P1",
+        "estimatedHours": 8,
+        "dependencies": [
+          "t-1"
+        ],
+        "acceptanceCriteria": [
+          "Only new or changed inputs are processed"
+        ]
+      },
+      {
+        "id": "t-9",
+        "title": "Implement dry-run mode",
+        "description": "Implement dry-run mode that shows what would be done without executing",
+        "priority": "P2",
+        "estimatedHours": 4,
+        "dependencies": [
+          "t-1"
+        ],
+        "acceptanceCriteria": [
+          "Dry-run output is produced"
+        ]
+      },
+      {
+        "id": "t-10",
+        "title": "Implement input state tracking",
+        "description": "Implement tracking of input processing state to avoid reprocessing",
+        "priority": "P1",
+        "estimatedHours": 4,
+        "dependencies": [
+          "t-1"
+        ],
+        "acceptanceCriteria": [
+          "Inputs are marked as processed",
+          "New inputs are detected"
+        ]
+      },
+      {
+        "id": "t-11",
+        "title": "Implement project metadata management",
+        "description": "Implement reading/writing project metadata and bundles with versioning",
+        "priority": "P1",
+        "estimatedHours": 6,
+        "dependencies": [
+          "t-5"
+        ],
+        "acceptanceCriteria": [
+          "Metadata and bundles are persisted",
+          "Versioning works"
+        ]
+      },
+      {
+        "id": "t-12",
+        "title": "Implement cost estimation",
+        "description": "Implement estimation of costs for LLM and ASR usage",
+        "priority": "P2",
+        "estimatedHours": 4,
+        "dependencies": [
+          "t-2"
+        ],
+        "acceptanceCriteria": [
+          "Cost estimates are calculated"
+        ]
+      },
+      {
+        "id": "t-13",
+        "title": "Implement CLI interface",
+        "description": "Implement CLI interface for the system",
+        "priority": "P0",
+        "estimatedHours": 8,
+        "dependencies": [
+          "t-1",
+          "t-2",
+          "t-3",
+          "t-5"
+        ],
+        "acceptanceCriteria": [
+          "CLI accepts inputs and produces outputs"
+        ]
+      }
+    ],
+    "agentInstructions": [
+      {
+        "category": "extraction",
+        "content": "Extract facts from input using LLM with prompts/extract.txt",
+        "priority": "critical"
+      },
+      {
+        "category": "aggregation",
+        "content": "Aggregate extracted facts using prompts/aggregate.txt",
+        "priority": "critical"
+      },
+      {
+        "category": "gap detection",
+        "content": "Detect gaps in requirements using prompts/gap-detect.txt",
+        "priority": "important"
+      }
+    ],
+    "openQuestions": [
+      {
+        "question": "What is the exact workflow from input to PCB compilation?",
+        "confidence": 0.5,
+        "evidence": "Multiple pipeline and agent modules suggest a multi-step process, but details are not explicit"
+      },
+      {
+        "id": "q-001",
+        "category": "产品/用户",
+        "question": "目标用户的具体角色和场景是什么？",
+        "context": "当前仅提及开发者和项目经理，但未区分其使用场景和需求差异，影响功能优先级和交互设计。",
+        "suggestedAnswers": [
+          "独立开发者管理个人项目",
+          "小型团队协作分析需求",
+          "项目经理跟踪需求变更"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "q-002",
+        "category": "技术/选型",
+        "question": "系统使用什么数据库或持久化存储？",
+        "context": "状态管理、项目元数据和版本管理需要持久化，但未指定存储方案（如文件系统、SQLite、PostgreSQL）。",
+        "suggestedAnswers": [
+          "本地JSON文件",
+          "SQLite",
+          "PostgreSQL"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "q-003",
+        "category": "数据/模型",
+        "question": "核心实体之间的关系是什么？",
+        "context": "数据模型中列出了多个实体但未定义关系，例如Fact与ParsedInput、Project与Bundle等。",
+        "suggestedAnswers": [
+          "一个ParsedInput产生多个Fact",
+          "一个Project包含多个Bundle",
+          "一个Bundle包含多个Fact"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "q-004",
+        "category": "流程/异常",
+        "question": "LLM API调用失败时的错误处理策略是什么？",
+        "context": "边缘案例提到LLM API失败，但未说明重试次数、退避策略或降级方案。",
+        "suggestedAnswers": [
+          "立即失败并报告错误",
+          "重试3次后失败",
+          "使用备用模型"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "q-005",
+        "category": "流程/异常",
+        "question": "如何处理输入验证和错误恢复？",
+        "context": "未描述输入格式错误、文件不存在等情况的处理流程。",
+        "suggestedAnswers": [
+          "返回错误码并终止",
+          "跳过错误输入并继续",
+          "提示用户修正"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "q-006",
+        "category": "决策/共识",
+        "question": "从输入到PCB编译的确切工作流是什么？",
+        "context": "开放问题指出工作流细节不明确，可能影响模块集成。",
+        "suggestedAnswers": [
+          "线性流水线：输入→提取→聚合→编译",
+          "迭代流水线：支持增量更新",
+          "分支流水线：根据输入类型不同路径"
+        ],
+        "status": "open"
+      }
+    ],
+    "decisions": [
+      {
+        "id": "d-1",
+        "topic": "Build tool",
+        "decision": "Use tsup for building to produce ESM and declaration files",
+        "rationale": "tsup is a fast bundler that supports ESM output and declaration file generation",
+        "alternatives": [
+          "esbuild",
+          "rollup"
+        ],
+        "date": "2026-06-02",
+        "status": "decided"
+      },
+      {
+        "id": "d-2",
+        "topic": "Testing framework",
+        "decision": "Use Vitest for testing",
+        "rationale": "Vitest is fast and integrates well with Vite/tsup",
+        "alternatives": [
+          "Jest",
+          "Mocha"
+        ],
+        "date": "2026-06-02",
+        "status": "decided"
+      }
+    ],
+    "techStack": [
+      {
+        "category": "Runtime",
+        "name": "Node.js",
+        "version": "",
+        "purpose": "JavaScript runtime",
+        "alternatives": [
+          "Deno",
+          "Bun"
+        ]
+      },
+      {
+        "category": "Language",
+        "name": "TypeScript",
+        "version": "",
+        "purpose": "Type-safe JavaScript",
+        "alternatives": [
+          "JavaScript"
+        ]
+      },
+      {
+        "category": "Framework",
+        "name": "tsup",
+        "version": "",
+        "purpose": "Build tool for ESM and declaration files",
+        "alternatives": [
+          "esbuild",
+          "rollup"
+        ]
+      },
+      {
+        "category": "Testing",
+        "name": "Vitest",
+        "version": "",
+        "purpose": "Unit testing",
+        "alternatives": [
+          "Jest",
+          "Mocha"
+        ]
+      },
+      {
+        "category": "AI/ML",
+        "name": "DeepSeek",
+        "version": "",
+        "purpose": "LLM client for fact extraction",
+        "alternatives": [
+          "OpenAI",
+          "Claude"
+        ]
+      },
+      {
+        "category": "AI/ML",
+        "name": "DashScope",
+        "version": "",
+        "purpose": "LLM client for fact extraction",
+        "alternatives": [
+          "OpenAI",
+          "Claude"
+        ]
+      }
+    ],
+    "architecture": {
+      "style": "Modular Monolith",
+      "description": "The system is organized into modules: agent (extraction, aggregation, gap detection), input (handling and routing), output (PCB compilation, markdown, diff), pipeline (incremental, dry-run), state (input tracking, store), and utilities (cost estimation, config). All modules are part of a single Node.js application.",
+      "components": [
+        {
+          "name": "CLI",
+          "type": "frontend",
+          "description": "Command-line interface for user interaction",
+          "technologies": [
+            "Node.js",
+            "TypeScript"
+          ],
+          "dependsOn": [
+            "Input Handler",
+            "Pipeline"
+          ]
+        },
+        {
+          "name": "Input Handler",
+          "type": "backend",
+          "description": "Detects input type and routes to appropriate handler",
+          "technologies": [
+            "TypeScript"
+          ],
+          "dependsOn": []
+        },
+        {
+          "name": "Agent",
+          "type": "backend",
+          "description": "Contains extractor, aggregator, and gap detector using LLM",
+          "technologies": [
+            "TypeScript",
+            "DeepSeek",
+            "DashScope"
+          ],
+          "dependsOn": [
+            "Input Handler"
+          ]
+        },
+        {
+          "name": "Output Generator",
+          "type": "backend",
+          "description": "Compiles PCB, generates markdown overview, and performs semantic diff",
+          "technologies": [
+            "TypeScript"
+          ],
+          "dependsOn": [
+            "Agent"
+          ]
+        },
+        {
+          "name": "Pipeline",
+          "type": "backend",
+          "description": "Orchestrates incremental processing and dry-run mode",
+          "technologies": [
+            "TypeScript"
+          ],
+          "dependsOn": [
+            "Input Handler",
+            "Agent",
+            "Output Generator"
+          ]
+        },
+        {
+          "name": "State Manager",
+          "type": "backend",
+          "description": "Tracks input processing state and manages project metadata with versioning",
+          "technologies": [
+            "TypeScript"
+          ],
+          "dependsOn": []
+        },
+        {
+          "name": "Utilities",
+          "type": "backend",
+          "description": "Provides cost estimation and configuration",
+          "technologies": [
+            "TypeScript"
+          ],
+          "dependsOn": []
+        }
+      ],
+      "dataFlow": [
+        {
+          "from": "CLI",
+          "to": "Input Handler",
+          "what": "User input"
+        },
+        {
+          "from": "Input Handler",
+          "to": "Agent",
+          "what": "Parsed input"
+        },
+        {
+          "from": "Agent",
+          "to": "Output Generator",
+          "what": "Aggregated facts and gaps"
+        },
+        {
+          "from": "Output Generator",
+          "to": "CLI",
+          "what": "PCB, markdown, diff"
+        },
+        {
+          "from": "Pipeline",
+          "to": "State Manager",
+          "what": "Input processing status"
+        },
+        {
+          "from": "State Manager",
+          "to": "Pipeline",
+          "what": "Processed inputs info"
+        }
+      ],
+      "deployment": {
+        "platform": "Node.js runtime",
+        "strategy": "Manual",
+        "details": "Run via CLI after building with tsup"
+      },
+      "keyDecisions": [
+        {
+          "topic": "Modular architecture",
+          "decision": "Organize code into separate modules for agent, input, output, pipeline, state, and utilities",
+          "rationale": "Separation of concerns and maintainability"
+        }
+      ]
+    }
+  }
+}

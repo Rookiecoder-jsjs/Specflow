@@ -1,0 +1,31 @@
+{
+  "name": "@specflow/claude-code",
+  "version": "0.1.0",
+  "description": "SpecFlow AI — AI-powered Project Context Compiler for Claude Code. Compile meeting recordings, documents, chat exports, and source code into AI-executable Project Context Bundles (PCB).",
+  "author": {
+    "name": "SpecFlow AI"
+  },
+  "homepage": "https://github.com/specflow-ai/specflow",
+  "repository": "https://github.com/specflow-ai/specflow",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "specflow",
+    "context-compiler",
+    "project-context",
+    "pcb",
+    "ai",
+    "llm",
+    "deepseek",
+    "dashscope",
+    "asr",
+    "codebase-analysis",
+    "documentation"
+  ],
+  "commands": [
+    "./commands/"
+  ],
+  "hooks": {
+    "settings": "./hooks/settings.json"
+  }
+}

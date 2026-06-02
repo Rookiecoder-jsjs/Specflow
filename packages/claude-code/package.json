@@ -1,0 +1,33 @@
+{
+  "name": "@specflow/claude-code",
+  "version": "0.1.0",
+  "description": "SpecFlow AI — AI-powered Project Context Compiler. Claude Code plugin with slash commands, hooks, and CLI.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "specflow": "../core/dist/cli.js"
+  },
+  "keywords": ["claude-code", "specflow", "context-compiler", "project-context", "pcb", "ai", "llm", "deepseek"],
+  "repository": {"type": "git", "url": "https://github.com/specflow-ai/specflow"},
+  "homepage": "https://github.com/specflow-ai/specflow#readme",
+  "engines": {"node": ">=18"},
+  "files": ["dist/", "commands/", "hooks/", ".claude-plugin/", "install.js"],
+  "scripts": {
+    "postinstall": "node install.js",
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@specflow/core": "workspace:*",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
