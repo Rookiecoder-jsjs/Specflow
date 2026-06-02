@@ -790,6 +790,21 @@ interface BundleMetadata {
   - Δ 变更摘要：新增 / 修改 / 删除 / 未变更
 ```
 
+#### `/specflow:check`
+
+```
+输入：无参数（可选 --json）
+处理：
+  1. 对比 .specflow/inputs/ 中记录的 hash 与当前文件 hash
+  2. 检查已追踪输入文件的变更和缺失
+  3. 检查 PCB 文件的存在和生成天数
+  4. 读取 .specflow/project.json 的最后编译时间
+输出：
+  - PCB 新鲜度状态（fresh / stale / never compiled）
+  - 变更和缺失的输入文件列表
+  - 每个 PCB 文件的存在状态和天数
+```
+
 ### 7.2 Hooks
 
 #### SessionStart
@@ -798,7 +813,18 @@ interface BundleMetadata {
 触发：Claude Code 启动时
 行为：
   - 项目含 .specflow/ → 检查新输入 / 未解决 Open Questions → 输出提醒
+  - 检查上下文新鲜度：编译后 > 7 天 → 输出 stale 警告
+  - 检查 CLAUDE.md 存在性
   - 项目不含 .specflow/ → 静默
+```
+
+#### PostCompile
+
+```
+触发：/specflow:compile 完成后
+行为：
+  - 编译流程自动生成 CLAUDE.md 至项目根目录
+  - 输出更新确认
 ```
 
 #### PostCompile
@@ -862,6 +888,7 @@ specflow init [--name <name>]
 specflow compile --audio <path> [--text <path>] [--chat <path>] [--project <path>] [--version <v>] [--dry-run] [--force]
 specflow status [--json]
 specflow diff [--from <v1>] [--to <v2>]
+specflow check [--json]
 specflow agent --list              # P1
 specflow agent --init <agent>      # P1
 ```
@@ -990,6 +1017,7 @@ push / PR → lint → typecheck → test (matrix: ubuntu/macos/windows × node 
 - [ ] `specflow compile --dry-run` 输出预估成本
 - [ ] `specflow status` 正确显示状态 + Open Questions
 - [ ] `specflow diff` 正确显示版本差异
+- [ ] `specflow check` 正确检测 PCB 漂移和过期状态
 - [ ] SessionStart hook 检测新输入并提醒
 - [ ] PostCompile hook 自动更新 CLAUDE.md
 - [ ] 缺失检测覆盖 ≥ 5 个维度

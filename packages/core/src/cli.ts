@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { compile } from './pipeline/compile.js';
+import { checkDrift } from './pipeline/check.js';
 import { readProjectMeta, writeProjectMeta, readBundle, listVersions, ensureSpecFlowDir } from './state/store.js';
 import { semanticDiff } from './output/diff.js';
 import { loadConfig } from './config.js';
@@ -101,10 +102,12 @@ program
 
       console.log('');
       console.log(`  Compilation complete! Version: ${result.version}`);
-      console.log(`  Files generated: ${result.files.length}`);
-      console.log(`  Open questions:  ${result.openQuestions.length}`);
-      console.log(`  Duration:        ${formatDuration(result.stats.compilationDurationMs)}`);
-      console.log(`  Facts extracted: ${result.stats.extractedFactCount}`);
+      console.log(`  Files generated:  ${result.files.length}`);
+      console.log(`  Facts extracted:  ${result.stats.extractedFactCount}`);
+      console.log(`  Open questions:   ${result.openQuestions.length}`);
+      console.log(`  Duration:         ${formatDuration(result.stats.compilationDurationMs)}`);
+      console.log('');
+      console.log(`  CLAUDE.md written to project root.`);
       console.log('');
     } catch (err) {
       console.error(`Compilation failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -219,6 +222,50 @@ program
     if (diff.removed.length > 0) {
       console.log('  Removed:');
       for (const r of diff.removed) console.log(`    - ${r.section}`);
+    }
+    console.log('');
+  });
+
+// ── check ──
+program
+  .command('check')
+  .description('Check for PCB drift — detect stale context after source changes')
+  .option('--json', 'Output as JSON')
+  .action(async (opts) => {
+    const projectRoot = process.cwd();
+    const report = checkDrift(projectRoot);
+
+    if (opts.json) {
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
+
+    console.log('');
+    if (report.stale) {
+      console.log('  ⚠ PCB is STALE — re-run `specflow compile` to refresh context.');
+      console.log('');
+      if (report.changedInputs.length > 0) {
+        console.log('  Changed inputs:');
+        for (const fp of report.changedInputs) console.log(`    ~ ${fp}`);
+      }
+      if (report.missingInputs.length > 0) {
+        console.log('  Missing inputs:');
+        for (const fp of report.missingInputs) console.log(`    ✗ ${fp}`);
+      }
+    } else if (!report.lastCompiledAt) {
+      console.log('  No compilation yet. Run `specflow compile` to create PCB.');
+    } else {
+      console.log('  ✓ PCB is up to date.');
+      console.log(`  Last compiled: ${report.lastCompiledAt.split('T')[0]}`);
+    }
+
+    if (report.pcbFiles.length > 0) {
+      console.log('');
+      console.log('  PCB file ages:');
+      for (const f of report.pcbFiles) {
+        const age = f.ageDays !== null ? `${f.ageDays}d` : 'missing';
+        console.log(`    ${f.ageDays !== null ? '●' : '○'} ${f.name} (${age})`);
+      }
     }
     console.log('');
   });

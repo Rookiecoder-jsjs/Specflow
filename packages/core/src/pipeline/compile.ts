@@ -9,6 +9,9 @@ import { writeBundle, ensureSpecFlowDir, writeProjectMeta, readProjectMeta } fro
 import { markInputProcessed } from '../state/input-tracker.js';
 import { loadApiKeys } from '../config.js';
 import { formatDuration, formatCost } from '../utils/format.js';
+import { generateClaudeMdContent } from '../output/claude-md.js';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 import { dryRun } from './dry-run.js';
 import { incrementalCompile } from './incremental.js';
 
@@ -68,6 +71,10 @@ export async function compile(options: CompileOptions): Promise<CompileResult> {
     estimatedCostCNY: 0,
   };
 
+  const uncertainCount = extractions.reduce(
+    (sum, e) => sum + e.facts.filter(f => f.confidence < 0.6).length, 0,
+  );
+
   const result = await compilePCB(aggregatedBundle, options, stats, costBreakdown);
 
   // Phase 4: Persist state
@@ -80,6 +87,7 @@ export async function compile(options: CompileOptions): Promise<CompileResult> {
     aggregatedBundle,
     modelCalls,
     stats.compilationDurationMs,
+    uncertainCount,
   );
   writeBundle(projectRoot, result.version, bundle);
 
@@ -88,7 +96,7 @@ export async function compile(options: CompileOptions): Promise<CompileResult> {
   }
 
   const existingMeta = readProjectMeta(projectRoot);
-  writeProjectMeta(projectRoot, {
+  const projectMeta = {
     id: existingMeta?.id ?? crypto.randomUUID(),
     name: existingMeta?.name ?? 'untitled',
     stage: existingMeta?.stage ?? 'development',
@@ -96,7 +104,18 @@ export async function compile(options: CompileOptions): Promise<CompileResult> {
     createdAt: existingMeta?.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     currentVersion: result.version,
-  });
+  };
+  writeProjectMeta(projectRoot, projectMeta);
+
+  // Auto-generate CLAUDE.md entry file (Map, Not Manual principle)
+  const claudeMd = generateClaudeMdContent(
+    aggregatedBundle,
+    projectMeta.name,
+    result.version,
+    projectMeta.updatedAt,
+    stats.extractedFactCount,
+  );
+  writeFileSync(join(projectRoot, 'CLAUDE.md'), claudeMd, 'utf-8');
 
   return result;
 }

@@ -6,6 +6,7 @@ export function createBundle(
   data: AggregatedBundle,
   modelCalls: ModelCallCost[],
   durationMs: number,
+  uncertainFactCount = 0,
 ): Bundle {
   const totalFacts = countFacts(data);
   const avgConf = avgConfidence(data);
@@ -13,6 +14,7 @@ export function createBundle(
     totalFacts,
     avgConfidence: avgConf,
     openQuestionCount: data.openQuestions?.length ?? 0,
+    uncertainFactCount,
     modelCalls,
     durationMs,
     compiledBy: 'SpecFlow AI v1.0.0',

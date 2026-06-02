@@ -199,6 +199,20 @@ specflow status [--json]
 
 Shows project name, stage, current version, version history, and which of the 12 PCB files exist (filled circle = present, open circle = missing). Reports the number of unresolved open questions.
 
+### `specflow check`
+
+Check for PCB drift — detect stale context after source file changes.
+
+```
+specflow check [--json]
+```
+
+| Option | Description |
+|---|---|
+| `--json` | Output drift report as JSON (for scripting and CI) |
+
+Compares tracked input file hashes against current state and reports which PCB files need regeneration. Implements the "Entropy Management" principle from Harness Engineering — catching context drift before it affects AI agent behavior.
+
 ### `specflow diff`
 
 Show the semantic difference between two bundle versions.

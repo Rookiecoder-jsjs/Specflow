@@ -341,6 +341,7 @@ export interface BundleMetadata {
   totalFacts: number;
   avgConfidence: number;
   openQuestionCount: number;
+  uncertainFactCount: number;
   modelCalls: ModelCallCost[];
   durationMs: number;
   compiledBy: string;
@@ -438,6 +439,7 @@ export const BundleSchema = z.object({
     totalFacts: z.number().int(),
     avgConfidence: z.number(),
     openQuestionCount: z.number().int(),
+    uncertainFactCount: z.number().int(),
     modelCalls: z.array(z.object({
       model: z.string(),
       promptTokens: z.number(),
