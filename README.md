@@ -6,7 +6,7 @@
 
 **AI-powered Project Context Compiler -- a Claude Code native plugin.**
 
-Turn meeting recordings, product documents, and chat discussions into AI-executable Project Context Bundles (PCB), directly inside Claude Code. No context switching. No repeated explanations. No data leaving your machine.
+Turn meeting recordings, product documents, chat discussions, and project source code into AI-executable Project Context Bundles (PCB), directly inside Claude Code. No context switching. No repeated explanations. No data leaving your machine.
 
 ---
 
@@ -47,7 +47,7 @@ specflow status
 At its core, SpecFlow AI fills the missing infrastructure layer between human collaboration and AI execution:
 
 ```
-Meeting recordings, PRDs, chat logs  →  [SpecFlow AI: semantic compilation layer]  →  AI-executable context
+Meeting recordings, PRDs, chat logs, source code  →  [SpecFlow AI: semantic compilation layer]  →  AI-executable context
 ```
 
 ---
