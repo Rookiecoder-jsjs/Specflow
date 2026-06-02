@@ -1,79 +1,74 @@
-# SpecFlow AI
+# 🧠 SpecFlow AI
 
 [![npm version](https://img.shields.io/npm/v/@specflow/claude-code)](https://www.npmjs.com/package/@specflow/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/Node.js-%3E%3D%2018-green.svg)](https://nodejs.org)
 
-**AI-powered Project Context Compiler -- a Claude Code native plugin.**
+> **喂给 AI 一次，处处可用。** Feed it once, it works everywhere.
 
-Turn meeting recordings, product documents, chat discussions, and project source code into AI-executable Project Context Bundles (PCB), directly inside Claude Code. No context switching. No repeated explanations. No data leaving your machine.
+**SpecFlow AI** 是一个 Claude Code 原生插件，也是 AI 时代的「项目上下文编译器」。它把散落在会议录音、产品文档、聊天记录和项目源码中的信息，编译成 AI 可直接执行的结构化上下文包（PCB），让 AI 助手从第一句对话就完全理解你的项目。
 
 ---
 
-## Quick Demo
+## 📸 30 秒看懂
 
 ```bash
-# 1. Install globally
-npm i -g @specflow/claude-code
+npm i -g @specflow/claude-code              # 1️⃣ 全局安装
+cd my-saas-app && specflow init             # 2️⃣ 项目中初始化
+specflow compile \                          # 3️⃣ 一键编译
+  --audio kickoff.m4a \
+  --text prd.md \
+  --project src/
+specflow status                             # 4️⃣ 查看结果
 
-# 2. Initialize in your project
-cd my-saas-app
-specflow init --name "My SaaS App"
-
-# 3. Compile meeting recordings, documents, and source code
-specflow compile --audio kickoff.m4a --text prd.md --project src/
-
-# 4. Check what was generated
-specflow status
-
-# Output:
+# ✨ 输出：
 #   Project: My SaaS App [discovery]
 #   Version: v0.1.0
-#   ● 00_overview.md
-#   ● 01_product_spec.md
-#   ● 02_user_flows.md
-#   ... (12 files total)
+#   ● 00_overview.md  ● 01_product_spec.md  ... (共12份)
+#   ✓ CLAUDE.md written to project root.
 #   No open questions.
 ```
 
 ---
 
-## What is SpecFlow AI?
+## 🤔 解决的问题
 
-**The problem:** Every time you start a Claude Code session, you spend the first 10-20 minutes re-explaining your project's context -- who the users are, what the constraints are, which decisions were already made, what the data model looks like. These details are scattered across meeting transcripts, PRD documents, chat threads, and source code. AI coding agents cannot see the full picture unless you manually feed it to them, over and over.
+每次打开 Claude Code，你都要花 10-20 分钟重新解释项目背景：用户是谁、有哪些约束、之前做过什么决策、数据模型长什么样……这些信息散落在各个角落，AI 看不到全貌，除非你一遍又一遍地手动喂。
 
-**What SpecFlow AI does:** It compiles all of those human-facing information sources into a structured, versioned, AI-readable Project Context Bundle (PCB) -- 12 markdown files that live in `docs/spec-flow/`. A Claude Code plugin then auto-loads this context at the start of every session, so your AI agent always has the full picture from the first prompt. You feed it once, it works everywhere.
-
-At its core, SpecFlow AI fills the missing infrastructure layer between human collaboration and AI execution:
+**SpecFlow AI 做了一件事：** 把所有人类协作中产生的信息，编译成结构化、带版本、AI 可读的 Project Context Bundle（PCB）—— 12 份 Markdown 文件存放在 `docs/spec-flow/` 下。配套插件在每次会话启动时自动加载，从此 AI 开箱即懂你的项目。
 
 ```
-Meeting recordings, PRDs, chat logs, source code  →  [SpecFlow AI: semantic compilation layer]  →  AI-executable context
+🔊 会议录音 + 📄 产品文档 + 💬 聊天记录 + 💻 项目源码
+              ↓
+      [SpecFlow AI 语义编译层]
+              ↓
+   📦 AI 可执行上下文（PCB）
 ```
 
 ---
 
-## Installation
+## 📦 安装
 
-### Prerequisites
+### 环境要求
 
-| Requirement | Purpose |
+| 依赖 | 用途 |
 |---|---|
-| Node.js >= 18 | Runtime |
-| DeepSeek API key | LLM extraction and reasoning (deepseek-v4-pro / deepseek-v4-flash) |
-| DashScope API key | Audio transcription via Aliyun DashScope (qwen3-asr-flash) |
-| ffmpeg (optional) | Audio preprocessing for non-standard formats |
+| Node.js >= 18 | 运行时 |
+| DeepSeek API Key | LLM 抽取与推理（deepseek-v4-pro / v4-flash） |
+| DashScope API Key | 阿里云语音转写（qwen3-asr-flash） |
+| ffmpeg（可选） | 非标准音频格式预处理 |
 
-### Global Install
+### 一行安装
 
 ```bash
 npm i -g @specflow/claude-code
 ```
 
-This installs the `specflow` CLI globally and registers Claude Code slash commands and hooks.
+全局安装 `specflow` CLI，并自动注册 Claude Code 的 slash 命令和 hooks。
 
-### API Configuration
+### 🔑 API 配置
 
-Create a `specflow.config.json` in your project root:
+在项目根目录创建 `specflow.config.json`：
 
 ```json
 {
@@ -84,383 +79,256 @@ Create a `specflow.config.json` in your project root:
 }
 ```
 
-Then add it to `.gitignore` immediately -- this file contains secrets:
+⚠️ **立刻加入 .gitignore —— 此文件含密钥：**
 
 ```bash
 echo "specflow.config.json" >> .gitignore
 ```
 
-The config file is auto-discovered by walking up the directory tree (up to 10 levels), so you can place it at any ancestor directory that is shared across projects.
+配置文件支持沿目录树向上查找（最多 10 层），可放在跨项目共享的上级目录。
 
 ---
 
-## Quick Start
+## 🚀 快速上手
 
-### Step 1: Install
+### 第一步：安装
 
 ```bash
 npm i -g @specflow/claude-code
 ```
 
-### Step 2: Configure
+### 第二步：配置
 
-Create `specflow.config.json` with your API keys (see [Configuration](#configuration) section above). Verify the file is in `.gitignore`.
+创建 `specflow.config.json` 填入 API Key，确认已在 `.gitignore` 中。
 
-### Step 3: Initialize
+### 第三步：初始化
 
 ```bash
 cd your-project
-specflow init --name "Project Name"
+specflow init --name "My Awesome Project"
 ```
 
-This creates `.specflow/` (internal state directory) and `docs/spec-flow/` (output directory) in your project root.
+创建 `.specflow/`（状态目录）和 `docs/spec-flow/`（输出目录）。
 
-### Step 4: Compile
-
-Feed it any combination of inputs:
+### 第四步：编译 —— 万物皆可喂
 
 ```bash
-# From meeting recordings
+# 🎙️ 从会议录音
 specflow compile --audio meeting.m4a
 
-# From product documents
+# 📝 从产品文档
 specflow compile --text prd.md --text architecture.pdf
 
-# From chat exports
+# 💬 从聊天导出
 specflow compile --chat feishu-export.json
 
-# From existing source code
+# 💻 从已有源码
 specflow compile --project src/
 
-# Combine everything
+# ⚡ 全家桶
 specflow compile --audio kickoff.m4a --text notes.md --project ./
 ```
 
-### Step 5: Check Status
+### 第五步：查看状态
 
 ```bash
 specflow status
 ```
 
-Shows which PCB files exist, the current version, project stage, and any open questions that need resolution.
-
 ---
 
-## Command Reference
+## 📋 命令全家桶
 
 ### `specflow init`
 
-Initialize SpecFlow AI in the current project directory.
+在当前目录初始化 SpecFlow。
 
 ```
-specflow init [--name <name>]
+specflow init [--name <名称>]
 ```
 
-| Option | Description |
+| 选项 | 说明 |
 |---|---|
-| `--name <name>` | Project name (defaults to the directory name) |
+| `--name <name>` | 项目名称（默认取目录名） |
 
-Creates the `.specflow/` state directory and `docs/spec-flow/` output directory. Records project metadata including a unique ID, creation timestamp, and initial version (`v0.1.0`).
+### `specflow compile` ✨ 核心命令
 
-### `specflow compile`
-
-Compile inputs into a versioned Project Context Bundle.
+将输入编译为带版本的 PCB。
 
 ```
 specflow compile --audio <path> --text <path> --chat <path> --project <path>
                  [--dry-run] [--force] [--version <v>]
 ```
 
-| Option | Description |
+| 选项 | 说明 |
 |---|---|
-| `--audio <path>` | Audio file path (m4a, mp3, wav, aac, flac, ogg, webm) |
-| `--text <path>` | Text or document path (md, txt, pdf, docx) |
-| `--chat <path>` | Chat export file path (JSON: Feishu, Slack, WeChat) |
-| `--project <path>` | Project source directory to analyze |
-| `--dry-run` | Estimate token cost without making API calls |
-| `--force` | Ignore cache and force full recompilation |
-| `--version <v>` | Assign a custom version label (e.g., `v1.2.0`) |
+| `--audio <path>` | 音频（m4a / mp3 / wav / aac / flac / ogg / webm） |
+| `--text <path>` | 文本或文档（md / txt / pdf / docx） |
+| `--chat <path>` | 聊天导出（飞书 / Slack / 微信 JSON） |
+| `--project <path>` | 源码目录（自动识别语言/框架/架构） |
+| `--dry-run` | 💰 仅估算 token 费用，不调 API |
+| `--force` | 🔄 忽略缓存，全量重编译 |
+| `--version <v>` | 🏷️ 自定义版本号 |
 
-At least one input flag is required. Multiple inputs of the same type can be specified (e.g., `--text file1.md --text file2.md`).
-
-On success, outputs compilation statistics: version, file count, open questions, duration, and extracted fact count.
+编译成功自动生成 `CLAUDE.md` 到项目根目录。
 
 ### `specflow status`
 
-Display project status and PCB file inventory.
+查看项目状态和 PCB 文件清单。
 
 ```
 specflow status [--json]
 ```
 
-| Option | Description |
-|---|---|
-| `--json` | Output status as JSON (for scripting and CI) |
+### `specflow check` 🔍 新鲜度检测
 
-Shows project name, stage, current version, version history, and which of the 12 PCB files exist (filled circle = present, open circle = missing). Reports the number of unresolved open questions.
-
-### `specflow check`
-
-Check for PCB drift — detect stale context after source file changes.
+检测 PCB 是否过期 —— 输入文件变更后及时发现上下文漂移。
 
 ```
 specflow check [--json]
 ```
 
-| Option | Description |
-|---|---|
-| `--json` | Output drift report as JSON (for scripting and CI) |
-
-Compares tracked input file hashes against current state and reports which PCB files need regeneration. Implements the "Entropy Management" principle from Harness Engineering — catching context drift before it affects AI agent behavior.
+实现 Harness Engineering「熵管理」原则：在 AI 智能体因过期上下文犯错之前，先发现它。
 
 ### `specflow diff`
 
-Show the semantic difference between two bundle versions.
+查看两个版本之间的语义差异。
 
 ```
-specflow diff [--from <version>] [--to <version>]
+specflow diff [--from <v1>] [--to <v2>]
 ```
-
-| Option | Description |
-|---|---|
-| `--from <v>` | Source version (defaults to the second-to-last version) |
-| `--to <v>` | Target version (defaults to the current/latest version) |
-
-Requires at least two compiled versions. Displays added, modified (with similarity score), and removed sections across all PCB files. Useful for reviewing what changed between iterations before updating your Claude Code context.
 
 ---
 
-## Input Types
+## 📥 四种输入，一张表
 
-| Type | Flag | Supported Formats | Description |
-|---|---|---|---|
-| Audio | `--audio` | m4a, mp3, wav, aac, flac, ogg, webm | Transcribed via DashScope qwen3-asr-flash. Best quality with m4a recordings. |
-| Text | `--text` | md, txt, pdf, docx | Parsed directly or via document extraction. Supports mixed formats in one compilation. |
-| Chat | `--chat` | JSON (Feishu, Slack, WeChat exports) | Parses structured chat exports to extract decisions, requirements, and context from team discussions. |
-| Project | `--project` | Source directory | Analyzes existing codebase: detects language, frameworks, dependencies, architecture patterns, and data models. Auto-detects manifest files (package.json, go.mod, Cargo.toml, etc.). |
-
----
-
-## PCB Output Files
-
-After compilation, the following 12 files are generated in `docs/spec-flow/`:
-
-| # | File | Description |
+| 类型 | 命令 | 支持格式 |
 |---|---|---|
-| 00 | `00_overview.md` | Project overview -- name, description, goals, stakeholders, current stage |
-| 01 | `01_product_spec.md` | Product specification -- target users, value proposition, features with priorities, scope |
-| 02 | `02_user_flows.md` | User flows -- step-by-step actor actions, expected outcomes, edge cases |
-| 03 | `03_technical_constraints.md` | Technical constraints -- categories, descriptions, rationales, considered alternatives |
-| 04 | `04_data_model.md` | Data model -- entities, fields, types, relationships, nullability |
-| 05 | `05_task_breakdown.md` | Task breakdown -- prioritized tasks with estimates, dependencies, acceptance criteria |
-| 06 | `06_agent_instructions.md` | Agent instructions -- critical/important/advisory directives for AI coding agents |
-| 07 | `07_open_questions.md` | Open questions -- unresolved items by category with suggested answers and status |
-| 08 | `08_decision_log.md` | Decision log -- decisions with rationale, alternatives considered, status tracking |
-| 09 | `09_codebase_analysis.md` | Codebase analysis -- results from `--project` input: detected patterns, structure, issues |
-| 10 | `10_tech_stack.md` | Tech stack -- categorized technology choices with versions, purposes, and alternatives |
-| 11 | `11_architecture.md` | Architecture -- system style, component topology, data flow, deployment strategy, key decisions |
-
-Files 00-08 are always generated from any input. Files 09-11 are populated when project source code analysis is included (`--project` flag).
+| 🎙️ 音频 | `--audio` | m4a / mp3 / wav / aac / flac / ogg / webm |
+| 📝 文本 | `--text` | md / txt / pdf / docx |
+| 💬 聊天 | `--chat` | 飞书 / Slack / 微信 JSON 导出 |
+| 💻 源码 | `--project` | 自动识别 package.json / go.mod / Cargo.toml 等 |
 
 ---
 
-## How It Works
+## 📦 PCB 输出文件（12 份）
 
-SpecFlow AI runs a five-phase compilation pipeline:
+| # | 文件 | 内容 |
+|---|---|---|
+| 00 | `00_overview.md` | 🏠 项目概览：目标、干系人、当前阶段 |
+| 01 | `01_product_spec.md` | 📋 产品规格：用户画像、功能列表、范围 |
+| 02 | `02_user_flows.md` | 🔀 用户流程：角色行为、预期结果、边界情况 |
+| 03 | `03_technical_constraints.md` | 🚧 技术约束：约束分类、理由、替代方案 |
+| 04 | `04_data_model.md` | 🗃️ 数据模型：实体、字段、关系、可空性 |
+| 05 | `05_task_breakdown.md` | ✅ 任务拆解：优先级、工时、依赖、验收标准 |
+| 06 | `06_agent_instructions.md` | 🤖 AI 执行指令：Critical / Important / Advisory |
+| 07 | `07_open_questions.md` | ❓ 未决问题：按分类、建议答案、状态 |
+| 08 | `08_decision_log.md` | 📝 决策日志：决策、理由、备选方案、状态 |
+| 09 | `09_codebase_analysis.md` | 🔬 源码分析：检测到的模式、结构、潜在问题 |
+| 10 | `10_tech_stack.md` | 🛠️ 技术栈：技术选型、版本、用途、备选 |
+| 11 | `11_architecture.md` | 🏗️ 产品架构：组件、数据流、部署、关键决策 |
 
-```
-                        ┌──────────────┐
-  Audio / Text / Chat   │  1. INPUT    │  Parse & transcribe
-  Project source ──────►│              │  (ASR, doc parsing, manifest detection)
-                        └──────┬───────┘
-                               │ transcript
-                        ┌──────▼───────┐
-                        │  2. EXTRACT  │  DeepSeek V4 PRO extracts facts:
-                        │              │  stakeholders, goals, requirements,
-                        │              │  entities, user flows, decisions, risks
-                        └──────┬───────┘
-                               │ facts (per segment)
-                        ┌──────▼───────┐
-                        │ 3. AGGREGATE │  DeepSeek V4 Flash deduplicates
-                        │              │  and merges across all segments
-                        └──────┬───────┘
-                               │ aggregated bundle
-                        ┌──────▼───────┐
-                        │  4. DETECT   │  Gap detector scans 7 dimensions
-                        │              │  for missing or incomplete information
-                        └──────┬───────┘
-                               │ bundle + gaps + questions
-                        ┌──────▼───────┐
-                        │ 5. COMPILE   │  Handlebars templates render
-                        │              │  12 structured PCB markdown files
-                        └──────────────┘
-```
-
-**Phase 1 -- Input:** Files are routed by type. Audio goes through DashScope ASR (qwen3-asr-flash) for speaker-labeled transcription. Text documents are parsed (PDF via extraction, DOCX via parsing, MD/TXT ingested directly). Chat exports are parsed into structured message threads. Project directories are scanned for manifests and source patterns.
-
-**Phase 2 -- Extract:** The transcript is split into overlapping segments. Each segment is processed by DeepSeek V4 PRO (temperature 0.1, max 8192 tokens) to extract structured facts with confidence scores and source references.
-
-**Phase 3 -- Aggregate:** DeepSeek V4 Flash (temperature 0.1, max 8192 tokens) deduplicates and merges facts across all segments into a single aggregated bundle. Flash is used here for speed on a template-driven task.
-
-**Phase 4 -- Detect:** DeepSeek V4 PRO (temperature 0.3, max 4096 tokens) scans the aggregated bundle across 7 dimensions -- product, technical, data, process, stakeholders, risks, and decisions -- identifying gaps and generating open questions with suggested answers.
-
-**Phase 5 -- Compile:** The aggregated bundle is rendered through 12 Handlebars templates into markdown files. An incremental compilation layer avoids re-processing unchanged inputs by comparing file hashes. Files are written to `docs/spec-flow/`.
-
-The Claude Code plugin hooks into `SessionStart` to auto-load the PCB context, and provides slash commands (`/specflow:compile`, `/specflow:status`, `/specflow:diff`) for in-session use.
+> 00-08 由任意输入生成；09-11 需要 `--project` 源码分析。
 
 ---
 
-## Architecture
-
-SpecFlow AI is organized as a pnpm monorepo with two packages:
+## ⚙️ 工作原理：五阶段编译流水线
 
 ```
-@specflow/core           Core engine -- zero external runtime dependencies
-│                        (only SDK packages: commander, handlebars, js-yaml, zod, chokidar)
-│
-└─ @specflow/claude-code Claude Code plugin -- slash commands, hooks, CLAUDE.md generator
-                         Depends on @specflow/core
+                       ┌──────────────┐
+ 🔊📝💬💻               │ ① INPUT      │ 解析 + 转写
+ 多种输入 ────────────►│              │ ASR / 文档 / 源码扫描
+                       └──────┬───────┘
+                              │ transcript
+                       ┌──────▼───────┐
+                       │ ② EXTRACT    │ DeepSeek V4 PRO
+                       │              │ 提取结构化事实
+                       └──────┬───────┘
+                              │ facts
+                       ┌──────▼───────┐
+                       │ ③ AGGREGATE  │ DeepSeek V4 Flash
+                       │              │ 去重合并
+                       └──────┬───────┘
+                              │ aggregated
+                       ┌──────▼───────┐
+                       │ ④ DETECT     │ 7 维信息缺口扫描
+                       │              │ 生成待解决问题
+                       └──────┬───────┘
+                              │ bundle + gaps
+                       ┌──────▼───────┐
+                       │ ⑤ COMPILE    │ 12 份 PCB Markdown
+                       │              │ + CLAUDE.md 入口
+                       └──────────────┘
+```
+
+---
+
+## 🏗️ 项目架构
+
+pnpm monorepo，两个包：
+
+```
+@specflow/core          核心引擎 —— 零外部运行时依赖
+@specflow/claude-code   Claude Code 插件 —— slash 命令、hooks、CLAUDE.md 生成
 ```
 
 ### @specflow/core
 
-The engine package. Handles the full compilation pipeline, LLM abstraction, state management, and CLI.
-
-- **`input/`** -- File routing and parsing: audio (ASR), text (PDF/MD/DOCX/TXT), chat (Feishu/Slack/WeChat JSON), project (manifest + source analysis)
-- **`agent/`** -- AI agents: extractor (DeepSeek V4 PRO), gap detector, aggregator, plus prompt templates
-- **`output/`** -- PCB compiler, Handlebars-based markdown generator, semantic diff engine
-- **`llm/`** -- Unified LLM abstraction layer with adapters for DeepSeek and DashScope
-- **`state/`** -- File system store for bundles, project metadata, input tracking with hash-based change detection
-- **`pipeline/`** -- Main compilation orchestrator, incremental compilation, dry-run cost estimation
-- **`utils/`** -- File hashing, text segmentation, token cost calculation, terminal output formatting
+| 模块 | 职责 |
+|---|---|
+| `input/` | 音频 ASR / PDF DOCX TXT 解析 / 飞书 Slack 微信 / 源码 manifest 扫描 |
+| `agent/` | 事实抽取器 + 缺口检测器 + 结果聚合器 + prompt 模板 |
+| `output/` | PCB 编译器 / Markdown 生成 / 语义 Diff / CLAUDE.md 生成 |
+| `llm/` | DeepSeek + DashScope 适配器 |
+| `state/` | Bundle 存储 / 项目元数据 / 基于 hash 的输入变更追踪 |
+| `pipeline/` | 全量编译 / 增量编译 / dry-run 估算 / 漂移检测 |
+| `utils/` | 文件 hash / 文本分段 / token 费用 / 终端格式化 |
 
 ### @specflow/claude-code
 
-The Claude Code plugin package. Provides the developer-facing interface.
-
-- **`commands/`** -- Slash command handlers for `/specflow:init`, `/specflow:compile`, `/specflow:status`, `/specflow:diff`
-- **`hooks/`** -- `SessionStart` hook for auto-loading PCB context, `PostToolUse` hook for post-compile actions
-- **`claude-md.ts`** -- Generates project-specific `CLAUDE.md` from PCB data
-- **`commands-md.ts`** -- Generates `.claude/commands/*.md` files for Claude Code command registration
+| 模块 | 职责 |
+|---|---|
+| `commands/` | `/specflow:init` `/specflow:compile` `/specflow:status` `/specflow:check` `/specflow:diff` |
+| `hooks/` | `SessionStart`（上下文过期提醒 + 未决问题检测）/ `PostCompile`（CLAUDE.md 更新） |
+| `claude-md.ts` | 从 PCB 数据生成 ~60 行渐进式披露入口文件 |
 
 ---
 
-## Configuration Reference
+## ⚙️ 配置参考
 
-The `specflow.config.json` file supports these fields:
-
-| Field | Required | Default | Description |
+| 字段 | 必需 | 默认值 | 说明 |
 |---|---|---|---|
-| `deepseekApiKey` | Yes | -- | DeepSeek API key for LLM extraction and reasoning |
-| `dashscopeApiKey` | Yes (for audio) | -- | Aliyun DashScope API key for audio transcription (qwen3-asr-flash) |
-| `deepseekBaseUrl` | No | `https://api.deepseek.com/v1` | Custom DeepSeek-compatible API endpoint |
-| `monthlyBudgetCNY` | No | `100` | Monthly cost limit in CNY (used for warnings and dry-run estimates) |
+| `deepseekApiKey` | ✅ | — | DeepSeek API 密钥 |
+| `dashscopeApiKey` | ✅（音频） | — | 阿里云 DashScope API 密钥 |
+| `deepseekBaseUrl` | ❌ | `https://api.deepseek.com/v1` | 自定义 API 端点 |
+| `monthlyBudgetCNY` | ❌ | `100` | 月度费用上限（¥） |
 
-> The config file is located by walking up the directory tree from the current working directory, looking for `specflow.config.json`. It stops after 10 levels.
+### 🎯 模型策略
 
-### Model Selection
-
-| Task | Model | Temperature | Max Tokens |
+| 任务 | 模型 | Temperature | Max Tokens |
 |---|---|---|---|
-| Fact extraction | deepseek-v4-pro | 0.1 | 8192 |
-| Gap detection | deepseek-v4-pro | 0.3 | 4096 |
-| Result aggregation | deepseek-v4-flash | 0.1 | 8192 |
-| Document summarization | deepseek-v4-flash | 0.1 | 4096 |
-| Audio transcription | qwen3-asr-flash | N/A | N/A |
+| 事实抽取 | deepseek-v4-pro | 0.1 | 8192 |
+| 缺口检测 | deepseek-v4-pro | 0.3 | 4096 |
+| 结果聚合 | deepseek-v4-flash | 0.1 | 8192 |
+| 文档摘要 | deepseek-v4-flash | 0.1 | 4096 |
+| 语音转写 | qwen3-asr-flash | N/A | N/A |
 
-Both DeepSeek models support 1M token context windows and 384K max output. Flash is used for high-throughput template tasks; Pro is used where reasoning quality matters.
-
----
-
-## Project Structure
-
-```
-specflow/
-├── package.json                    # Workspace root (pnpm workspaces)
-├── pnpm-workspace.yaml
-├── tsconfig.base.json
-├── vitest.config.ts
-├── .github/
-│   └── workflows/
-│       └── ci.yml                  # lint -> test -> build
-│
-├── packages/
-│   ├── core/                       # @specflow/core
-│   │   ├── package.json
-│   │   ├── src/
-│   │   │   ├── index.ts            # Public API exports
-│   │   │   ├── types.ts            # All type definitions + Zod schemas
-│   │   │   ├── config.ts           # Config loader (walk-up discovery)
-│   │   │   ├── cli.ts              # CLI entry point (commander)
-│   │   │   ├── pipeline/           # Compile, incremental, dry-run
-│   │   │   ├── input/              # Audio, text, chat, project parsers
-│   │   │   ├── agent/              # Extractor, gap detector, aggregator + prompts
-│   │   │   ├── output/             # PCB compiler, markdown gen, diff engine + templates
-│   │   │   ├── llm/                # DeepSeek + DashScope adapters
-│   │   │   ├── state/              # Bundle store, input tracker, project meta
-│   │   │   └── utils/              # Hash, segment, cost, format
-│   │   └── test/
-│   │
-│   └── claude-code/                # @specflow/claude-code
-│       ├── package.json
-│       ├── src/
-│       │   ├── index.ts            # Plugin entry
-│       │   ├── commands/           # init, compile, status, diff handlers
-│       │   ├── hooks/              # SessionStart, PostCompile hooks
-│       │   ├── claude-md.ts        # CLAUDE.md generator
-│       │   └── commands-md.ts      # .claude/commands/*.md generator
-│       └── test/
-│
-├── specs/                          # Test fixtures
-│   └── fixtures/
-│       ├── meeting.mp3
-│       ├── notes.md
-│       └── chat-export.txt
-│
-└── docs/
-    └── spec-flow/                  # Output directory for compiled PCB files
-```
+两模型均支持 1M token 上下文窗口和 384K 最大输出。Flash 干快活，Pro 干细活。
 
 ---
 
-## Development
+## 🔧 开发
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Build all packages
-pnpm build
-
-# Run all tests
-pnpm test
-
-# Run tests with coverage
-pnpm test -- --coverage
-
-# Type check
-pnpm typecheck
+pnpm install          # 装依赖
+pnpm build            # 构建全部
+pnpm test             # 跑测试
+pnpm test -- --coverage  # 覆盖率
+pnpm typecheck        # 类型检查
 ```
-
-### Per-package Commands
-
-```bash
-# Build a specific package
-cd packages/core && pnpm build
-cd packages/claude-code && pnpm build
-
-# Run tests for a specific package
-cd packages/core && pnpm test
-```
-
-### Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full development setup, pull request process, and commit conventions.
 
 ---
 
-## License
+## 📄 License
 
-MIT
-
-Copyright (c) 2025 SpecFlow AI Contributors
+MIT · Copyright (c) 2025 SpecFlow AI Contributors
