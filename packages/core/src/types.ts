@@ -362,6 +362,151 @@ export const FactTypeSchema = z.enum([
   'decision', 'risk', 'task', 'entity', 'user_flow', 'technical_choice', 'open_question',
 ]);
 
+export const OpenQuestionSchema = z.object({
+  id: z.string().default(''),
+  category: z.string().default('uncategorized'),
+  question: z.string().default(''),
+  context: z.string().default(''),
+  suggestedAnswers: z.array(z.string()).optional(),
+  status: z.enum(['open', 'resolved']).default('open'),
+  resolution: z.string().optional(),
+});
+
+export const ProjectOverviewSchema = z.object({
+  name: z.string().default(''),
+  description: z.string().default(''),
+  stage: z.string().default('discovery'),
+  goals: z.array(z.string()).default([]),
+  stakeholders: z.array(z.string()).default([]),
+});
+
+export const ProductSpecSchema = z.object({
+  targetUsers: z.array(z.string()).default([]),
+  valueProposition: z.string().default(''),
+  features: z.array(z.object({
+    name: z.string(),
+    priority: z.string(),
+    description: z.string(),
+  })).default([]),
+  scope: z.object({
+    included: z.array(z.string()).default([]),
+    excluded: z.array(z.string()).default([]),
+  }).default({ included: [], excluded: [] }),
+});
+
+export const UserFlowSchema = z.object({
+  name: z.string(),
+  steps: z.array(z.object({
+    actor: z.string(),
+    action: z.string(),
+    expectedOutcome: z.string(),
+  })).default([]),
+  edgeCases: z.array(z.string()).default([]),
+});
+
+export const TechnicalConstraintSchema = z.object({
+  category: z.string(),
+  description: z.string(),
+  rationale: z.string(),
+  alternatives: z.array(z.string()).optional(),
+});
+
+export const DataModelEntitySchema = z.object({
+  name: z.string(),
+  fields: z.array(z.object({
+    name: z.string(),
+    type: z.string(),
+    description: z.string(),
+    nullable: z.boolean(),
+  })).default([]),
+  relationships: z.array(z.object({
+    target: z.string(),
+    type: z.string(),
+    description: z.string(),
+  })).default([]),
+});
+
+export const DataModelSchema = z.object({
+  entities: z.array(DataModelEntitySchema).default([]),
+});
+
+export const TaskSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  priority: z.enum(['P0', 'P1', 'P2']),
+  estimatedHours: z.number(),
+  dependencies: z.array(z.string()).default([]),
+  acceptanceCriteria: z.array(z.string()).default([]),
+});
+
+export const AgentInstructionSchema = z.object({
+  category: z.string(),
+  content: z.string(),
+  priority: z.enum(['critical', 'important', 'advisory']),
+});
+
+export const DecisionSchema = z.object({
+  id: z.string(),
+  topic: z.string(),
+  decision: z.string(),
+  rationale: z.string(),
+  alternatives: z.array(z.string()).default([]),
+  date: z.string(),
+  status: z.enum(['proposed', 'decided', 'superseded']),
+});
+
+export const TechStackItemSchema = z.object({
+  category: z.string(),
+  name: z.string(),
+  version: z.string().optional(),
+  purpose: z.string(),
+  alternatives: z.array(z.string()).optional(),
+});
+
+export const ArchitectureComponentSchema = z.object({
+  name: z.string(),
+  type: z.enum(['frontend', 'backend', 'database', 'service', 'storage', 'external', 'pipeline']),
+  description: z.string(),
+  technologies: z.array(z.string()).default([]),
+  dependsOn: z.array(z.string()).default([]),
+});
+
+export const ArchitectureSchema = z.object({
+  style: z.string(),
+  description: z.string(),
+  components: z.array(ArchitectureComponentSchema).default([]),
+  dataFlow: z.array(z.object({
+    from: z.string(),
+    to: z.string(),
+    what: z.string(),
+  })).default([]),
+  deployment: z.object({
+    platform: z.string(),
+    strategy: z.string(),
+    details: z.string(),
+  }),
+  keyDecisions: z.array(z.object({
+    topic: z.string(),
+    decision: z.string(),
+    rationale: z.string(),
+  })).default([]),
+});
+
+export const AggregatedBundleSchema = z.object({
+  overview: ProjectOverviewSchema,
+  productSpec: ProductSpecSchema,
+  userFlows: z.array(UserFlowSchema).default([]),
+  technicalConstraints: z.array(TechnicalConstraintSchema).default([]),
+  dataModel: DataModelSchema,
+  tasks: z.array(TaskSchema).default([]),
+  agentInstructions: z.array(AgentInstructionSchema).default([]),
+  openQuestions: z.array(OpenQuestionSchema).default([]),
+  decisions: z.array(DecisionSchema).default([]),
+  techStack: z.array(TechStackItemSchema).default([]),
+  architecture: ArchitectureSchema.nullable(),
+});
+
 export const FactSchema = z.object({
   type: FactTypeSchema,
   content: z.string().min(1),
@@ -381,15 +526,7 @@ export const ExtractionResultSchema = z.object({
   })),
 });
 
-export const OpenQuestionSchema = z.object({
-  id: z.string(),
-  category: z.string(),
-  question: z.string(),
-  context: z.string(),
-  suggestedAnswers: z.array(z.string()).optional(),
-  status: z.enum(['open', 'resolved']),
-  resolution: z.string().optional(),
-});
+export const OpenQuestionSchemaRef = OpenQuestionSchema;
 
 export const GapDetectionResultSchema = z.object({
   categories: z.array(z.object({
@@ -436,18 +573,18 @@ export const BundleSchema = z.object({
   sourceInputs: z.array(z.string()),
   createdAt: z.string(),
   metadata: z.object({
-    totalFacts: z.number().int(),
-    avgConfidence: z.number(),
-    openQuestionCount: z.number().int(),
-    uncertainFactCount: z.number().int(),
+    totalFacts: z.number().int().default(0),
+    avgConfidence: z.number().default(0),
+    openQuestionCount: z.number().int().default(0),
+    uncertainFactCount: z.number().int().default(0),
     modelCalls: z.array(z.object({
       model: z.string(),
       promptTokens: z.number(),
       completionTokens: z.number(),
       costCNY: z.number(),
-    })),
-    durationMs: z.number(),
-    compiledBy: z.string(),
+    })).default([]),
+    durationMs: z.number().default(0),
+    compiledBy: z.string().default('specflow'),
   }),
-  data: z.object({}).passthrough(),
+  data: AggregatedBundleSchema,
 });

@@ -1,4 +1,5 @@
 import { statSync, readFileSync } from 'fs';
+import { execSync } from 'child_process';
 import type { CompileOptions } from '../types.js';
 import { estimateDeepSeekCost, estimateASRCost } from '../utils/cost.js';
 
@@ -50,10 +51,9 @@ export async function dryRun(options: CompileOptions): Promise<DryRunResult> {
   }
 
   try {
-    const { execSync } = require('child_process') as typeof import('child_process');
     execSync('ffmpeg -version', { stdio: 'ignore' });
   } catch {
-    warnings.push('ffmpeg not found — audio inputs will be skipped');
+    warnings.push('ffmpeg not found - audio inputs will be skipped');
   }
 
   try {

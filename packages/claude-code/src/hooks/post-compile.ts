@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { writeFileSync, existsSync, readFileSync } from 'fs';
+import { writeFileSync, existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 export function updateClaudeMd(projectRoot: string): void {
@@ -22,7 +22,7 @@ export function updateClaudeMd(projectRoot: string): void {
 function getLatestVersion(projectRoot: string): string | null {
   const dir = join(projectRoot, '.specflow', 'versions');
   if (!existsSync(dir)) return null;
-  const versions = require('fs').readdirSync(dir).filter((d: string) => d.startsWith('v')).sort();
+  const versions = readdirSync(dir).filter((d: string) => d.startsWith('v')).sort();
   return versions.length > 0 ? versions[versions.length - 1] : null;
 }
 

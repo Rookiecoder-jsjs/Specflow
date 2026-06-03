@@ -26,6 +26,7 @@ const SRC_EXTS = new Set(['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.j
 
 const MAX_FILES = 100;
 const MAX_DEPTH = 4;
+const MAX_FILE_BYTES = 512 * 1024;
 
 // ── Export Extraction ──────────────────────────────────────────────────────
 
@@ -165,6 +166,14 @@ function scan(root: string): ScanResult {
         const ext = extname(name).toLowerCase();
         if (SRC_EXTS.has(ext) && res.files.length < MAX_FILES) {
           try {
+            const fileStat = statSync(full);
+            if (fileStat.size > MAX_FILE_BYTES) {
+              res.files.push({
+                path: rel, lines: Math.ceil(fileStat.size / 50),
+                exports: [],
+              });
+              continue;
+            }
             const content = readFileSync(full, 'utf-8');
             const lines = content.split('\n');
             res.files.push({

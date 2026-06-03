@@ -65,8 +65,8 @@ export class DashScopeClient {
       throw new Error(`DashScope Embedding error: ${JSON.stringify(errData)}`);
     }
 
-    const data = await response.json() as Record<string, unknown>;
-    const embeddings = (data['output']?.['embeddings'] as Array<{ embedding: number[] }>) ?? [];
+    const data = (await response.json()) as { output?: { embeddings?: Array<{ embedding: number[] }> } };
+    const embeddings = data.output?.embeddings ?? [];
     return embeddings.map(e => e.embedding);
   }
 

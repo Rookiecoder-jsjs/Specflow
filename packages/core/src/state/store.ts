@@ -1,7 +1,18 @@
-import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, renameSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import type { ProjectMeta, Bundle } from '../types.js';
 import { ProjectMetaSchema, BundleSchema } from '../types.js';
+
+function atomicWriteJson(targetPath: string, payload: unknown): void {
+  const tmpPath = `${targetPath}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    writeFileSync(tmpPath, JSON.stringify(payload, null, 2), 'utf-8');
+    renameSync(tmpPath, targetPath);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch { /* ignore */ }
+    throw err;
+  }
+}
 
 export function ensureSpecFlowDir(projectRoot: string): string {
   const dir = join(projectRoot, '.specflow');
@@ -20,7 +31,7 @@ export function readProjectMeta(projectRoot: string): ProjectMeta | null {
 
 export function writeProjectMeta(projectRoot: string, meta: ProjectMeta): void {
   const path = join(projectRoot, '.specflow', 'project.json');
-  writeFileSync(path, JSON.stringify(meta, null, 2), 'utf-8');
+  atomicWriteJson(path, meta);
 }
 
 export function readBundle(projectRoot: string, version: string): Bundle | null {
@@ -33,13 +44,14 @@ export function readBundle(projectRoot: string, version: string): Bundle | null 
 export function writeBundle(projectRoot: string, version: string, bundle: Bundle): void {
   const dir = join(projectRoot, '.specflow', 'versions', version);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, 'bundle.json'), JSON.stringify(bundle, null, 2), 'utf-8');
+  atomicWriteJson(join(dir, 'bundle.json'), bundle);
 }
 
 export function listVersions(projectRoot: string): string[] {
   const dir = join(projectRoot, '.specflow', 'versions');
   if (!existsSync(dir)) return [];
-  return readdirSync(dir).filter(d => d.startsWith('v')).sort();
+  const entries = readdirSync(dir, { withFileTypes: false }) as string[];
+  return entries.filter((d: string) => d.startsWith('v')).sort();
 }
 
 export function getLatestVersion(projectRoot: string): string | null {

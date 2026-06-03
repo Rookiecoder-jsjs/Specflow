@@ -1,4 +1,5 @@
-import { readFileSync } from 'fs';
+import { readFileSync, statSync } from 'fs';
+import { execSync } from 'child_process';
 import { extname } from 'path';
 import type { InputFile, ParsedInput } from '../types.js';
 import { DashScopeClient } from '../llm/dashscope.js';
@@ -11,6 +12,23 @@ export async function parseAudio(inputFile: InputFile): Promise<ParsedInput[]> {
   const ext = extname(inputFile.path).toLowerCase();
   if (!SUPPORTED.includes(ext)) {
     throw new Error(`Unsupported audio format: ${ext}`);
+  }
+
+  // Check size BEFORE reading to avoid OOM on huge files.
+  let fileSize: number;
+  try {
+    fileSize = statSync(inputFile.path).size;
+  } catch (err) {
+    throw new Error(
+      `Cannot read audio file: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+  if (fileSize > MAX_SIZE) {
+    const sizeMB = (fileSize / 1024 / 1024).toFixed(1);
+    throw new Error(
+      `Audio file exceeds 10MB limit (${sizeMB}MB). ` +
+      `Compress the audio, upload to OSS and provide URL, or use a smaller file.`
+    );
   }
 
   const buffer = readFileSync(inputFile.path);
@@ -27,7 +45,6 @@ export async function parseAudio(inputFile: InputFile): Promise<ParsedInput[]> {
 
   let ffmpegOk = false;
   try {
-    const { execSync } = require('child_process') as typeof import('child_process');
     execSync('ffmpeg -version', { stdio: 'ignore' });
     ffmpegOk = true;
   } catch { /* ffmpeg not found */ }

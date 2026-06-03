@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 export async function handleInit(projectRoot: string, name?: string): Promise<void> {
@@ -27,7 +27,6 @@ export async function handleInit(projectRoot: string, name?: string): Promise<vo
     currentVersion: 'v0.1.0',
   };
 
-  const { writeFileSync } = require('fs') as typeof import('fs');
   writeFileSync(
     join(specFlowDir, 'project.json'),
     JSON.stringify(meta, null, 2),

@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import type { CompileOptions, CompileResult, AggregatedBundle, GeneratedFile, OpenQuestion, CompileStats, CostBreakdown } from '../types.js';
 import { generateOverview } from './markdown.js';
@@ -51,7 +51,6 @@ export async function compilePCB(
 function autoVersion(projectRoot: string): string {
   const versionsDir = join(projectRoot, '.specflow', 'versions');
   if (!existsSync(versionsDir)) return 'v1.0.0';
-  const { readdirSync } = require('fs') as typeof import('fs');
   const versions = readdirSync(versionsDir).filter((d: string) => d.startsWith('v'));
   if (versions.length === 0) return 'v1.0.0';
   const latest = versions.sort().pop()!;

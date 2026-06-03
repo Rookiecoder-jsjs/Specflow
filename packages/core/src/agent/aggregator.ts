@@ -1,4 +1,5 @@
 import type { ExtractionResult, AggregatedBundle } from '../types.js';
+import { AggregatedBundleSchema } from '../types.js';
 import { DeepSeekClient } from '../llm/deepseek.js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
@@ -18,7 +19,7 @@ export async function aggregate(extractions: ExtractionResult[]): Promise<Aggreg
   const input = JSON.stringify(facts, null, 2);
   const messages = [
     { role: 'system' as const, content: PROMPT },
-    { role: 'user' as const, content: `将以下抽取结果聚合为统一的项目上下文：\n\n${input}` },
+    { role: 'user' as const, content: `请将以下抽取结果聚合为统一的项目上下文：\n\n${input}` },
   ];
 
   let retries = 2;
@@ -32,12 +33,29 @@ export async function aggregate(extractions: ExtractionResult[]): Promise<Aggreg
         responseFormat: 'json_object',
       });
 
-      const parsed = JSON.parse(response.content) as Record<string, unknown>;
-      return parsed as unknown as AggregatedBundle;
+      let raw: unknown;
+      try {
+        raw = JSON.parse(response.content);
+      } catch (parseErr) {
+        throw new Error(
+          `Aggregator returned invalid JSON: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
+        );
+      }
+      const validated = AggregatedBundleSchema.safeParse(raw);
+      if (!validated.success) {
+        throw new Error(
+          `Aggregator LLM output failed schema validation: ${validated.error.issues
+            .slice(0, 3)
+            .map(i => `${i.path.join('.')}: ${i.message}`)
+            .join('; ')}`,
+        );
+      }
+      return validated.data;
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       if (attempt < retries) {
-        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+        const backoffMs = Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 250);
+        await new Promise(r => setTimeout(r, backoffMs));
       }
     }
   }

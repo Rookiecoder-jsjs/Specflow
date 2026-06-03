@@ -6,7 +6,6 @@ import { compile } from './pipeline/compile.js';
 import { checkDrift } from './pipeline/check.js';
 import { readProjectMeta, writeProjectMeta, readBundle, listVersions, ensureSpecFlowDir } from './state/store.js';
 import { semanticDiff } from './output/diff.js';
-import { loadConfig } from './config.js';
 import { formatDuration, formatCost } from './utils/format.js';
 
 const program = new Command();
@@ -64,7 +63,9 @@ program
   .option('--version <v>', 'Bundle version')
   .option('--dry-run', 'Estimate cost without execution')
   .option('--force', 'Ignore cache and force recompile')
+  .option('--config <path>', 'Path to specflow.config.json (overrides auto-discovery)')
   .action(async (opts) => {
+    if (opts.config) setExplicitConfigPath(opts.config);
     const inputs: string[] = [];
     if (opts.audio) inputs.push(opts.audio);
     if (opts.text) inputs.push(opts.text);

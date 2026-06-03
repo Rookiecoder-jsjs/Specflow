@@ -3,10 +3,13 @@
 [![npm version](https://img.shields.io/npm/v/@specflow/claude-code)](https://www.npmjs.com/package/@specflow/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/Node.js-%3E%3D%2018-green.svg)](https://nodejs.org)
+[![Security: audited](https://img.shields.io/badge/security-audited%20v0.1.0-brightgreen.svg)](docs/SECURITY.md)
 
 > **喂给 AI 一次，处处可用。** Feed it once, it works everywhere.
 
 **SpecFlow AI** 是一个 Claude Code 原生插件，也是 AI 时代的「项目上下文编译器」。它把散落在会议录音、产品文档、聊天记录和项目源码中的信息，编译成 AI 可直接执行的结构化上下文包（PCB），让 AI 助手从第一句对话就完全理解你的项目。
+
+> 🔒 **v0.1.0 安全审计已完成**：修复 7 个 critical 漏洞（RCE、无限递归、ESM 运行时崩溃、API key 泄漏等）+ 14 个 HIGH 优先级问题。所有 LLM 输出经 Zod schema 校验，bundle 写入采用原子操作，shell hook 经命令注入测试。详见 [SECURITY.md](docs/SECURITY.md)。
 
 ---
 
@@ -85,7 +88,16 @@ npm i -g @specflow/claude-code
 echo "specflow.config.json" >> .gitignore
 ```
 
-配置文件支持沿目录树向上查找（最多 10 层），可放在跨项目共享的上级目录。
+#### 配置文件查找顺序（按优先级）
+
+CLI 按以下顺序自动寻找配置（找到即停）：
+
+1. **显式 `--config` 参数**：`specflow compile --config /path/to/specflow.config.json`
+2. **环境变量**：`DEEPSEEK_API_KEY` + `DASHSCOPE_API_KEY`（推荐 CI/CD 使用）
+3. **当前项目根及向上 10 层**：从 `cwd` 起向上 10 层目录树内找 `specflow.config.json` 或 `config.json`
+4. **CLI 自身目录及向上 6 层**：从运行中 `cli.js` 所在目录起向上找（让 `node /path/to/specflow/dist/cli.js` 在任意 cwd 都能工作）
+
+> 配置文件找不到 → 报清晰错误，列出上面 4 个备选方案。无需手动设置 `SPECFLOW_PROJECT_ROOT`。
 
 ---
 
@@ -162,13 +174,14 @@ specflow compile --audio <path> --text <path> --chat <path> --project <path>
 
 | 选项 | 说明 |
 |---|---|
-| `--audio <path>` | 音频（m4a / mp3 / wav / aac / flac / ogg / webm） |
+| `--audio <path>` | 音频（m4a / mp3 / wav / aac / flac / ogg / webm，最大 10MB） |
 | `--text <path>` | 文本或文档（md / txt / pdf / docx） |
 | `--chat <path>` | 聊天导出（飞书 / Slack / 微信 JSON） |
-| `--project <path>` | 源码目录（自动识别语言/框架/架构） |
+| `--project <path>` | 源码目录（自动识别语言/框架/架构；单文件 > 512KB 自动跳过） |
 | `--dry-run` | 💰 仅估算 token 费用，不调 API |
 | `--force` | 🔄 忽略缓存，全量重编译 |
 | `--version <v>` | 🏷️ 自定义版本号 |
+| `--config <path>` | 🔑 显式指定 config 路径（覆盖自动查找） |
 
 编译成功自动生成 `CLAUDE.md` 到项目根目录。
 
@@ -317,15 +330,34 @@ pnpm monorepo，两个包：
 
 ---
 
+## 🛡️ 安全与可靠性（v0.1.0）
+
+| 特性 | 实现 |
+|---|---|
+| **API key 保护** | 优先 env var；配置文件自动 `.gitignore` 注入；`postinstall` 钩子自动写入 `.gitignore` |
+| **LLM 输出校验** | 所有 LLM 返回经 Zod schema 校验（`AggregatedBundleSchema`），无效 JSON 触发 3 次重试 + 抖动退避 |
+| **原子写入** | bundle / project.json 用 tmp 文件 + rename 写入，崩溃不会留下半截文件 |
+| **Shell 注入防御** | SessionStart hook 的 `node -e` 改用 `process.env` 传值 + ISO-8601 严格正则校验 |
+| **OOM 防御** | 音频先 `statSync` 后 read；项目扫描单文件 > 512KB 自动跳过 |
+| **零递归** | 增量编译剥离 `incremental` 标志，避免无限循环 |
+| **ESM 兼容** | 全部 6 处 `require()` 替换为顶层 import |
+
+详见 [docs/SECURITY.md](docs/SECURITY.md) 完整审计报告。
+
+---
+
 ## 🔧 开发
 
 ```bash
 pnpm install          # 装依赖
-pnpm build            # 构建全部
+pnpm build            # 构建全部（自动 copy prompts/*.txt 到 dist/）
 pnpm test             # 跑测试
 pnpm test -- --coverage  # 覆盖率
 pnpm typecheck        # 类型检查
+pnpm lint             # ESLint
 ```
+
+> `pnpm build` 会自动把 `packages/core/src/agent/prompts/*.txt` 复制到 `packages/core/dist/prompts/`，运行时 `__dirname`-relative 读取。
 
 ---
 

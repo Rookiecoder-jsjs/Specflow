@@ -58,17 +58,18 @@ fs.mkdirSync(path.join(specflowDir, "versions"), { recursive: true });
 const docsDir = path.join(target, "docs", "spec-flow");
 fs.mkdirSync(docsDir, { recursive: true });
 
-// 5. Add specflow.config.json to .gitignore
+// 5. Add specflow.config.json and config.json to .gitignore
 const gitignorePath = path.join(target, ".gitignore");
-const gitignoreEntry = "specflow.config.json";
-let needsGitignoreUpdate = true;
+const gitignoreEntries = ["specflow.config.json", "config.json"];
+let existingContent = "";
 if (fs.existsSync(gitignorePath)) {
-  const content = fs.readFileSync(gitignorePath, "utf-8");
-  if (content.includes(gitignoreEntry)) needsGitignoreUpdate = false;
+  existingContent = fs.readFileSync(gitignorePath, "utf-8");
 }
-if (needsGitignoreUpdate) {
-  fs.appendFileSync(gitignorePath, `\n# SpecFlow AI config (contains API keys)\n${gitignoreEntry}\n`);
-  console.log("  Git: added specflow.config.json to .gitignore");
+const missingEntries = gitignoreEntries.filter(e => !existingContent.includes(e));
+if (missingEntries.length > 0) {
+  const block = "\n# SpecFlow AI config (contains API keys)\n" + missingEntries.join("\n") + "\n";
+  fs.appendFileSync(gitignorePath, block);
+  console.log(`  Git: added ${missingEntries.join(", ")} to .gitignore`);
 }
 
 console.log("");

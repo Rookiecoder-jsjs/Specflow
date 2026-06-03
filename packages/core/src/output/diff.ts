@@ -52,6 +52,8 @@ function flattenBundle(bundle: Bundle): Record<string, string> {
   result['agentInstructions'] = JSON.stringify(data.agentInstructions ?? []);
   result['openQuestions'] = JSON.stringify(data.openQuestions ?? []);
   result['decisions'] = JSON.stringify(data.decisions ?? []);
+  result['techStack'] = JSON.stringify(data.techStack ?? []);
+  result['architecture'] = JSON.stringify(data.architecture ?? null);
   return result;
 }
 

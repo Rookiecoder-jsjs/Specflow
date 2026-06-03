@@ -3,13 +3,23 @@
     "SessionStart": [
       {
         "matcher": "",
-        "command": "bash .claude/hooks/session-start.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "specflow:compile",
-        "command": "bash .claude/hooks/post-compile.sh"
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-compile.sh"
+          }
+        ]
       }
     ]
   }

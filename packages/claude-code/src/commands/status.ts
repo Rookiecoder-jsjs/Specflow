@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 export async function handleStatus(projectRoot: string): Promise<void> {
@@ -13,7 +13,7 @@ export async function handleStatus(projectRoot: string): Promise<void> {
   const meta = JSON.parse(readFileSync(projectPath, 'utf-8'));
   const bundlesDir = join(projectRoot, '.specflow', 'versions');
   const versions = existsSync(bundlesDir)
-    ? require('fs').readdirSync(bundlesDir).filter((d: string) => d.startsWith('v')).sort()
+    ? readdirSync(bundlesDir).filter((d: string) => d.startsWith('v')).sort()
     : [];
 
   const latestVersion = versions.length > 0 ? versions[versions.length - 1] : null;

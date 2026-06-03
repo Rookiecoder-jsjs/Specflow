@@ -23,13 +23,15 @@ export async function incrementalCompile(
     };
   }
 
-  const incrementalOptions: CompileOptions = {
-    ...options,
+  // CRITICAL: Strip `incremental` flag before calling fullCompile to break recursion.
+  // The compile() entry point checks `options.incremental` and re-dispatches back here.
+  const { incremental: _drop, ...rest } = options;
+  const resolvedOptions: CompileOptions = {
+    ...rest,
     inputs: newInputs,
-    incremental: true,
   };
 
-  const result = await fullCompile(incrementalOptions);
+  const result = await fullCompile(resolvedOptions);
 
   for (const fp of newInputs) {
     markInputProcessed(options.projectRoot, fp);
