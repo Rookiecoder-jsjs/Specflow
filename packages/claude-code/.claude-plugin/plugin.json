@@ -27,5 +27,8 @@
   ],
   "hooks": {
     "settings": "./hooks/settings.json"
-  }
+  },
+  "skills": [
+    "./skills/"
+  ]
 }

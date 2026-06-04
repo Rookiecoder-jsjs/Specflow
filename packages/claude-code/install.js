@@ -58,7 +58,33 @@ fs.mkdirSync(path.join(specflowDir, "versions"), { recursive: true });
 const docsDir = path.join(target, "docs", "spec-flow");
 fs.mkdirSync(docsDir, { recursive: true });
 
-// 5. Add specflow.config.json and config.json to .gitignore
+// 5. Copy skills to .claude/skills/ (so /skill specflow-workflow can be triggered)
+const skillsSrc = path.join(src, "skills");
+const skillsDst = path.join(target, ".claude", "skills");
+if (fs.existsSync(skillsSrc)) {
+  fs.mkdirSync(skillsDst, { recursive: true });
+  let skillCount = 0;
+  for (const entry of fs.readdirSync(skillsSrc, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const skillDir = path.join(skillsSrc, entry.name);
+    const dstDir = path.join(skillsDst, entry.name);
+    fs.mkdirSync(dstDir, { recursive: true });
+    for (const f of fs.readdirSync(skillDir)) {
+      const srcFile = path.join(skillDir, f);
+      const dstFile = path.join(dstDir, f);
+      const stat = fs.statSync(srcFile);
+      if (stat.isFile()) {
+        fs.copyFileSync(srcFile, dstFile);
+        skillCount++;
+      }
+    }
+  }
+  if (skillCount > 0) {
+    console.log(`  Skills: ${skillCount} file(s) installed to .claude/skills/`);
+  }
+}
+
+// 6. Add specflow.config.json and config.json to .gitignore
 const gitignorePath = path.join(target, ".gitignore");
 const gitignoreEntries = ["specflow.config.json", "config.json"];
 let existingContent = "";
